@@ -118,7 +118,7 @@
                         {{#if composerPkg}}
                           <p class="github-stars">
                             <span class="iconify" data-icon="ri:download-fill"></span>
-                            <span class="stars" data-gh-api="{{getComposerApi composerPkg}}">{{downloads}}</span>
+                            <span class="stars" data-composer-downloads="{{getComposerApi composerPkg}}" data-composer-pkg="{{getComposerApi composerPkg}}">{{downloads}}</span>
                           </p>
                         {{/if}}
                       </div>
@@ -349,7 +349,24 @@
             })
         )
       }
+
+      async function updateDownloads(){
+        await Promise.all(
+          Array.from(document.querySelectorAll('[data-composer-downloads]'))
+            .map(async (e) => {
+              const api = e.dataset.composerDownloads
+              const pkg = e.dataset.composerPkg
+              const r = await fetch(api)
+              const json = await r.json()
+              if (json.values[pkg]){
+                e.innerText = json.values[pkg].reduce((prev,next) => prev + next,0)
+                console.info(`${api} - ${json.values[pkg].reduce((prev,next) => prev + next,0)}`)
+              }
+            })
+        )
+      }
       window.addEventListener('load', updateStars)
+      window.addEventListener('load', updateDownloads)
     </script>
   </body>
 </html>
