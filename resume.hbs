@@ -14,7 +14,7 @@
   </head>
 
   <body itemscope itemtype="http://schema.org/Person">
-    
+
     <div class="container">
       <section class="row">
         <div class="card-wrapper">
@@ -115,6 +115,12 @@
                             <span class="stars" data-gh-api="{{getGithubApi githubUrl}}">{{stars}}</span>
                           </p>
                         {{/if}}
+                        {{#if composerPkg}}
+                          <p class="github-stars">
+                            <span class="iconify" data-icon="ri:download-fill"></span>
+                            <span class="stars" data-gh-api="{{getComposerApi composerPkg}}">{{downloads}}</span>
+                          </p>
+                        {{/if}}
                       </div>
                     </li>
                   {{/each}}
@@ -164,7 +170,7 @@
             <div class="card-nested" itemprop="description">
               <div class="skill-table">
                 {{#each resume.skills}}
-                    <div class='name'>{{name}}</div> 
+                    <div class='name'>{{name}}</div>
                     <div>{{join keywords}}</div>
                 {{/each}}
               </div>
@@ -328,7 +334,7 @@
       </section>
     </div>
 
-    
+
     <script>
       async function updateStars(){
         await Promise.all(

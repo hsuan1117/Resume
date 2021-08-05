@@ -86,6 +86,10 @@ function getGithubApi(url) {
   return url.replace('https://github.com/', 'https://api.github.com/repos/')
 }
 
+function getComposerApi(pkg) {
+  return 'https://packagist.org/packages/' + pkg + '/stats/all.json'
+}
+
 async function getRepoStars (url) {
   if (githubRepoCache[url])
     return githubRepoCache[url].stargazers_count
@@ -98,6 +102,21 @@ async function getRepoStars (url) {
   catch(e){
     console.error(e)
     return 'NaN'
+  }
+}
+
+const composerCache = {}
+
+async function getComposerDownloads (pkg) {
+  if(composerCache[pkg])
+    return composerCache[pkg].values[pkg].reduce((prev,next) => prev + next,0)
+  try {
+    const api = getComposerApi(pkg)
+    const { data } = await axios.get(api)
+    composerCache[pkg] = data
+    return data.values[pkg].reduce((prev,next) => prev + next,0)
+  } catch (e) {
+    return '0'
   }
 }
 
@@ -204,6 +223,8 @@ async function render(resume) {
   for (const project of resume.projects){
     if (project.githubUrl)
       project.stars = await getRepoStars(project.githubUrl)
+    if (project.composerPkg)
+      project.downloads = await getComposerDownloads(project.composerPkg)
   }
 
   Handlebars.registerHelper('toSocialIcon', function (text) {
@@ -223,6 +244,7 @@ async function render(resume) {
   })
 
   Handlebars.registerHelper('getGithubApi', getGithubApi)
+  Handlebars.registerHelper('getComposerApi', getComposerApi)
 
   Handlebars.registerHelper('breaklines', function(text) {
     text = Handlebars.Utils.escapeExpression(text);
